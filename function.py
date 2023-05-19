@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import math
 
 moveList=[]
 solvedMatrix=[]
@@ -43,13 +44,13 @@ def reworkedSwap(faceFrom,sideAffectList,faceTo,cubeMatr):         #Working test
 
 testTurn=[[0,1,2,3,4,5,6,7,8]]
 
-def turn(cubeMatr,face,clockwise):           #Currently Working (10/03/2023)
+def turn(cubeMatr,face,clock):           #Currently Working (10/03/2023)
     tempHolding=[]
     for a in cubeMatr[face]:
         tempHolding.append(a)
     antClockFacePos=[6,3,0,7,4,1,8,5,2]
     clockFacePos=[2,5,8,1,4,7,0,3,6]
-    if clockwise:
+    if clock:
         for a in range(len(clockFacePos)):
             cubeMatr[face][a]=tempHolding[clockFacePos[a]]
     else:
@@ -57,7 +58,35 @@ def turn(cubeMatr,face,clockwise):           #Currently Working (10/03/2023)
             cubeMatr[face][a]=tempHolding[antClockFacePos[a]]
     return cubeMatr
 
-print(turn(testTurn,0,False))
+#More optimized turnOF
+def newTurn(face,turnType):
+    global cubeMatrix
+    dupeList=["12,24,40","13,25,41","04,32,44,54","05,33,45,55","02,34,42,52","03,35,42,52","14,22,50","15,23,51","00,10,20,30","01,11,21,31"]
+    moveList=[
+              [[1,4,2,5],[[2,5,8],[8,7,6],[6,3,0],[0,1,2]],[4,2,5,1]],    
+              [[1,4,2,5],[[2,5,8],[8,7,6],[6,3,0],[0,1,2]],[5,1,4,2]],
+              [[0,4,3,5],[[0,3,6],[0,3,6],[8,5,2],[0,3,6]],[4,3,5,0]],    
+              [[0,4,3,5],[[0,3,6],[0,3,6],[8,5,2],[0,3,6]],[5,0,4,3]],
+              [[0,4,3,5],[[2,5,8],[2,5,8],[6,3,0],[2,5,8]],[4,3,5,0]],    
+              [[0,4,3,5],[[2,5,8],[2,5,8],[6,3,0],[2,5,8]],[5,0,4,3]],
+              [[1,4,2,5],[[0,3,6],[2,1,0],[8,5,2],[6,7,8]],[5,1,4,2]],
+              [[1,4,2,5],[[0,3,6],[2,1,0],[8,5,2],[6,7,8]],[4,2,5,1]],
+              [[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[2,0,1,3]],
+              [[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[1,3,2,0]]
+    ]   
+
+    for a in dupeList:
+        if str(face)+str(turnType) in a:
+            if dupeList.index(a)%2==0:
+                TF=True
+            else:
+                TF=False
+            move=moveList[dupeList.index(a)]
+            reworkedSwap(move[0],move[1],move[2],cubeMatrix)
+            if math.floor(dupeList.index(a)/2)==4:
+                turn(cubeMatrix,5,TF)
+            else:    
+                turn(cubeMatrix,math.floor(dupeList.index(a)/2),TF)
 
 def turnOF(face,turnB):
     global cubeMatrix
@@ -147,11 +176,11 @@ def testingProgram():
         else:
             try:
                 print("Face: "+MInp[0]+" Turn: "+MInp[1])
-                turnOF(int(MInp[0]),int(MInp[1]))
+                newTurn(int(MInp[0]),int(MInp[1]))
                 print(cubeMatrix)
             except:
                 print("Command Not Reconized Try Again")
         MInp=input("What would you Like to do: \n")
     print("Ending Program")
 
-#testingProgram()
+testingProgram()

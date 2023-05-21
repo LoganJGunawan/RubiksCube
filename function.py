@@ -2,6 +2,8 @@ import random
 import numpy as np
 import math
 
+#CUBE FUNCTIONS
+#CUBE FUNCTIONS
 moveList=[]
 solvedMatrix=[]
 testCubeMatrix=[[0,1,2,3,4,5,6,7,8],[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2],[3,3,3,3,3,3,3,3,3],[4,4,4,4,4,4,4,4,4],[5,5,5,5,5,5,5,5,5]]
@@ -183,4 +185,32 @@ def testingProgram():
         MInp=input("What would you Like to do: \n")
     print("Ending Program")
 
-testingProgram()
+#testingProgram()
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+#Cam Functions
+
+def getColorCode(R,G,B):
+    minimum = 10000
+    for i in range(len(csv)):
+        d = abs(R- int(csv.loc[i,"R"])) + abs(G- int(csv.loc[i,"G"]))+ abs(B- int(csv.loc[i,"B"]))
+        if(d<=minimum):
+            minimum = d
+            cname = csv.loc[i,"color"]
+            cnum = csv.loc[i,"no"]
+            print(cnum)
+        else:
+            print("No work")
+    #print(cname)
+    return cnum
+
+#Function to get the exact RGB value of a section in an image
+def colorCheck(xpos,ypos,img):
+    global r,g,b
+    b,g,r=img[xpos][ypos]
+    #b,g,r=imgList[img][xpos,ypos]
+    b=int(b)
+    g=int(g)
+    r=int(r)

@@ -1,41 +1,15 @@
-00: Passed
-01: Passed
-02: Passed
-03: Passed
-04: Passed
-05: Passed
+Test 1: turn() properly turns the face of the cube
+        Passed 
 
-10: Passed
-11: Passed
-12: Passed
-13: Passed
-14: Passed
-15: Passed
+Test 2: reworkedSwap() properly swaps elements from one face and maps it to another
+        Passed
 
-20: Passed
-21: Passed
-22: Passed
-23: Passed
-24: Passed
-25: Passed
+Test 3: turnOF() accurately represents the state of the cube after various turns
+        Inconsistencies: 01,02,34,35,42,43,44,45,52,53,54,55
+        Moves above had 1 or more incosistent mapping
+Test 3#2:
+        All turns are accurately mapped
 
-30: Passed
-31: Passed
-32: Passed
-33: Passed
-34: Passed
-35: Passed
-
-40: Passed
-41: Passed
-42: Passed
-43: Passed
-44: Passed
-45: Passed
-
-50: Passed
-51: Passed
-52: Passed
-53: Passed
-54: Passed
-55: Passed
+Test 4: newTurn() accurately represents the state of the cube after various turns
+        Inconsistencies arised.
+        

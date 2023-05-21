@@ -1,6 +1,7 @@
 import pandas as pd
 import cv2
 from function import colorCheck, getColorCode
+import keyboard
 
 #Declaring global variables
 vid = cv2.videoCapture(0) #Gets video footage from webcam
@@ -16,15 +17,28 @@ colorCheck(600,1200,cv2.imread('0.jpg'))
 print(getColorCode(r,g,b))
 
 def camMain(vid):
-    while True:
+    frames=[]
+    faces=["Front","Left","Right","Back","Top","Bottom"]
+    for a in len(faces):
+        print("Show "+faces[a]+" face\n")
         ret,frame = vid.read()
-        cv2.imshow('frame', frame)
-        if cv2.waitKey('0') & 0XFF==ord('q'):
-            break
+        cv2.imshow('Video',frame)
+        cv2.waitKey(0)
+        keyboard.wait('space')
+        frames.append(frame)
     vid.release()
     cv2.destroyAllWindows()
-print("aaaa")
-camMain(vid=vid)
+    return frames
+
+def showImg(list):
+    for a in list:
+        keyboard.wait('space')
+        cv2.imshow('Img',cv2.imread(a))
+        cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+imgList=camMain(vid=vid)
+showImg(imgList)
 
 #Loading all images
 #try:

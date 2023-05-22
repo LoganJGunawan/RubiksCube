@@ -4,9 +4,6 @@ import math
 
 #CUBE FUNCTIONS
 #CUBE FUNCTIONS
-moveList=[]
-solvedMatrix=[]
-testCubeMatrix=[[0,1,2,3,4,5,6,7,8],[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2],[3,3,3,3,3,3,3,3,3],[4,4,4,4,4,4,4,4,4],[5,5,5,5,5,5,5,5,5]]
 def initMatr():
     global cubeMatrix, solvedMatrix
     tempM=[]
@@ -14,8 +11,6 @@ def initMatr():
         for i in range(9):
             tempM.append(a)
     solvedMatrix=cubeMatrix=np.reshape(np.array(tempM),(6,9))
-
-initMatr()
 
 def swap(side1,side2,side3,cubeMatr):        #BROKEN AND USELESS (10/05/2023)    REPLACED(11/05/2023)
     tempHolding=[[],[],[],[]]
@@ -43,8 +38,6 @@ def reworkedSwap(faceFrom,sideAffectList,faceTo,cubeMatr):         #Working test
             cubeMatr[faceTo[a]][sideAffectList[faceFromTo][b]]=tempHolding[c][d]
             d+=1
         c+=1
-
-testTurn=[[0,1,2,3,4,5,6,7,8]]
 
 def turn(cubeMatr,face,clock):           #Currently Working (10/03/2023)
     tempHolding=[]
@@ -92,7 +85,6 @@ def newTurn(face,turnType):
 
 def turnOF(face,turnB):
     global cubeMatrix
-    moveList.append([face,turnB])
     fTurnArr=[]
     if face==0:                 #TESTED SUCCESFUL 17/05
         fTurnArr=[[[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[2,0,1,3],[5,True]],    #Bottom Left Done
@@ -145,25 +137,10 @@ def turnOF(face,turnB):
     reworkedSwap(fTurnArr[turnB][0],fTurnArr[turnB][1],fTurnArr[turnB][2],cubeMatrix)
     turn(cubeMatrix,fTurnArr[turnB][3][0],fTurnArr[3][1])
 
-def checkBasicPossibility():
-    basicPoss=[0,0,0,0,0,0]
-    for a in cubeMatrix:
-        for b in a:           
-            basicPoss[b-1]+=1
-    for a in basicPoss:
-        if a!=9:
-            print("Basic Check 1 Failed")
-
 def shuffle():
     for i in range(random.randint(1,99)):
         turnOF(random.randint(0,3),random.randint(0,5))
-        checkBasicPossibility()
     print(cubeMatrix)
-
-def Eval():
-    print("Moves to Completion: "+str(len(moveList)))
-    print("Move List: "+moveList)
-                
 
 def testingProgram():
     global cubeMatrix
@@ -192,19 +169,19 @@ def testingProgram():
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 #Cam Functions
 
-def getColorCode(R,G,B):
-    minimum = 10000
-    for i in range(len(csv)):
-        d = abs(R- int(csv.loc[i,"R"])) + abs(G- int(csv.loc[i,"G"]))+ abs(B- int(csv.loc[i,"B"]))
-        if(d<=minimum):
-            minimum = d
-            cname = csv.loc[i,"color"]
-            cnum = csv.loc[i,"no"]
-            print(cnum)
-        else:
-            print("No work")
-    #print(cname)
-    return cnum
+#def getColorCode(R,G,B):
+#    minimum = 10000
+#    for i in range(len(csv)):
+#        d = abs(R- int(csv.loc[i,"R"])) + abs(G- int(csv.loc[i,"G"]))+ abs(B- int(csv.loc[i,"B"]))
+#        if(d<=minimum):
+#            minimum = d
+#            cname = csv.loc[i,"color"]
+#            cnum = csv.loc[i,"no"]
+#            print(cnum)
+#        else:
+#            print("No work")
+#    #print(cname)
+#    return cnum
 
 #Function to get the exact RGB value of a section in an image
 def colorCheck(xpos,ypos,img):

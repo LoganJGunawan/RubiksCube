@@ -3,6 +3,7 @@ import math
 import sys
 import csv
 import pandas as pd
+import json
 
 #Declaring global variables
 vid = cv2.VideoCapture(0) #Gets video footage from webcam
@@ -14,6 +15,7 @@ intPos=[166,373]
 index=["no","color","R","G","B"]
 valList=[]
 csv = pd.read_csv('newColors.csv', names=index, header=None)
+emptyList={}
 
 #with open('newColors.csv') as file_obj:
 #        reader_obj = csv.reader(file_obj)
@@ -78,17 +80,7 @@ def mainCam():
     for a in positions:
         #getImg(a)
         camCubeMatr.append(getColorVal(a+".jpg"))
-    print(camCubeMatr)
+    return camCubeMatr
 
-mainCam()
-
-#def mainCam():
-#    getCamPos(first=intPos,offset=offSet)
-#    camCubeMatr=[]
-#    positions=["Front","Left","Right","Back","Top","Bottom"]
-#    for a in positions:
-        #getImg(a)
-        #camCubeMatr.append(frameTranslation(a+'.jpg'))
-    #return camCubeMatr
-
-#print(mainCam())
+if __name__ == "camera":
+    mainCam()

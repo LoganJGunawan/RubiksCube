@@ -7,6 +7,14 @@ test.py       - Miscellaneous testing
 newColors.csv - CSV file used to color match and identify colors in a cube by camera.py
 learn.csv     - CSV file used to learn cube solving by learning.py
 
+Modules Used:
+numpy           - Array Methods
+tensorflow      - Machine Learning
+cv2             - Python Vision Program
+random          - Return random input
+math            - Miscellaneous mathematical operations
+tf-agents       - Deep Q Network
+
 Representation:
 Faces:       Turn:                               Color:
 0 - Front    Bottom turned Left                  Yellow
@@ -26,8 +34,16 @@ X6 & X7: 6 and 7 would represent the move of turning the top side of the face of
          technically faces 4 and 5 are able to perform this move due to having a motor on all 4 sides of its face,
          there is minimal need to implement this as currently (19/05/2023).
 
+Example Code:
+https://github.com/VickneshB/RubiksCube - opencv + Kociemba project to solve a rubiks cube using the 
+                                          kociemba module by getting camera input from opencv
+
+
 Log:
 11/05/2023 function.py is completed. Will test soon
 15/05/2023 Basic testing of function.py finished
 15/05/2023 Bugs fixed in function.py
 19/05/2023 Optimization in function.py: newTurn()
+24/05/2023 First version of camera.py finished
+02/06/2023 3D Printing of Hooks, 3D Designing of Base
+05/06/2023 Testing of 3D Printed Hook

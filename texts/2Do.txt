@@ -1,0 +1,13 @@
+TO DO LIST:
+1. Basic Functionality (VITAL)     Status: Y
+2. Basic Camera Input (VITAL)      Status: Y
+3. Camera Tracking (Middle)        Status: N
+4. Environment Setup (VITAL)       Status: N
+5. Debug GUI (Low-Middle)          Status: N
+6. Visual Representation (Low)     Status: N
+7. Raspberry Pi Testing (Vital)    Status: N
+8. Arduino + Motor Testing (Vital) Status: Y
+9. Server Code (Vital)             Status: Y
+10. Server Test (Vital)            Status: N
+11. Overall Test (Vital)           Status: N
+12. Model Train & Test (Middle-Vital) Status: N

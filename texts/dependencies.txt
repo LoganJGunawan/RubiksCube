@@ -1,0 +1,7 @@
+python -m pip install math
+python -m pip install cv2
+python -m pip install tensorflow
+python -m pip install tf-agents
+python -m pip install pandas
+python -m pip install random
+python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117

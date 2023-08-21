@@ -4,18 +4,16 @@ import math
 
 #CUBE FUNCTIONS
 #CUBE FUNCTIONS
-moveList=[]
-solvedMatrix=[]
-testCubeMatrix=[[0,1,2,3,4,5,6,7,8],[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2],[3,3,3,3,3,3,3,3,3],[4,4,4,4,4,4,4,4,4],[5,5,5,5,5,5,5,5,5]]
-def initMatr():
-    global cubeMatrix, solvedMatrix
+
+def resetCube():
     tempM=[]
     for a in range(6):
         for i in range(9):
             tempM.append(a)
-    solvedMatrix=cubeMatrix=np.reshape(np.array(tempM),(6,9))
+    cubeMatrix=np.reshape(np.array(tempM),(6,9))
+    return cubeMatrix
 
-initMatr()
+solvedCubeMatrix=resetCube()
 
 def swap(side1,side2,side3,cubeMatr):        #BROKEN AND USELESS (10/05/2023)    REPLACED(11/05/2023)
     tempHolding=[[],[],[],[]]
@@ -43,8 +41,8 @@ def reworkedSwap(faceFrom,sideAffectList,faceTo,cubeMatr):         #Working test
             cubeMatr[faceTo[a]][sideAffectList[faceFromTo][b]]=tempHolding[c][d]
             d+=1
         c+=1
-
-testTurn=[[0,1,2,3,4,5,6,7,8]]
+    newCubeMatr=cubeMatr
+    return newCubeMatr
 
 def turn(cubeMatr,face,clock):           #Currently Working (10/03/2023)
     tempHolding=[]
@@ -61,8 +59,8 @@ def turn(cubeMatr,face,clock):           #Currently Working (10/03/2023)
     return cubeMatr
 
 #More optimized turnOF
-def newTurn(face,turnType):
-    global cubeMatrix
+def oldTurn(cubematrix,face,turnType):
+    newCubeMatrix=cubematrix
     dupeList=["12,24,40","13,25,41","04,32,44,54","05,33,45,55","02,34,42,52","03,35,42,52","14,22,50","15,23,51","00,10,20,30","01,11,21,31"]
     moveList=[
               [[1,4,2,5],[[2,5,8],[8,7,6],[6,3,0],[0,1,2]],[4,2,5,1]],    
@@ -76,7 +74,6 @@ def newTurn(face,turnType):
               [[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[2,0,1,3]],
               [[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[1,3,2,0]]
     ]   
-
     for a in dupeList:
         if str(face)+str(turnType) in a:
             if dupeList.index(a)%2==0:
@@ -84,86 +81,63 @@ def newTurn(face,turnType):
             else:
                 TF=False
             move=moveList[dupeList.index(a)]
-            reworkedSwap(move[0],move[1],move[2],cubeMatrix)
+            newCubeMatrix=reworkedSwap(move[0],move[1],move[2],newCubeMatrix)
             if math.floor(dupeList.index(a)/2)==4:
-                turn(cubeMatrix,5,TF)
+                newCubeMatrix=turn(newCubeMatrix,5,TF)
             else:    
-                turn(cubeMatrix,math.floor(dupeList.index(a)/2),TF)
+                newCubeMatrix=turn(newCubeMatrix,math.floor(dupeList.index(a)/2),TF)
+    return newCubeMatrix
 
-def turnOF(face,turnB):
-    global cubeMatrix
-    moveList.append([face,turnB])
-    fTurnArr=[]
-    if face==0:                 #TESTED SUCCESFUL 17/05
-        fTurnArr=[[[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[2,0,1,3],[5,True]],    #Bottom Left Done
-                 [[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[1,3,2,0],[5,False]],    #Bottom Right Done
-                 [[0,4,3,5],[[2,5,8],[2,5,8],[6,3,0],[2,5,8]],[5,0,4,3],[2,True]],    #Right Top Done
-                 [[0,4,3,5],[[2,5,8],[2,5,8],[6,3,0],[2,5,8]],[4,3,5,0],[2,False]],    #Right Bottom Done
-                 [[0,4,3,5],[[0,3,6],[0,3,6],[8,5,2],[0,3,6]],[5,0,4,3],[1,True]],    #Left Top Done
-                 [[0,4,3,5],[[0,3,6],[0,3,6],[8,5,2],[0,3,6]],[4,3,5,0],[1,False]],    #Left Bottom Done
-                 ]   
-    elif face==1:              #TESTED SUCCESFUL 17/05
-        fTurnArr=[[[1,3,2,0],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[0,1,3,2],[5,True]],    #Bottom Left Done
-                 [[1,3,2,0],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[3,2,0,1],[5,False]],    #Bottom Right Done
-                 [[1,4,2,5],[[2,5,8],[8,7,6],[6,3,0],[0,1,2]],[5,1,4,2],[0,True]],    #Right Top Done
-                 [[1,4,2,5],[[2,5,8],[8,7,6],[6,3,0],[0,1,2]],[4,2,5,1],[0,False]],    #Right Bottom Done
-                 [[1,4,2,5],[[0,3,6],[2,1,0],[8,5,2],[6,7,8]],[5,1,4,2],[3,True]],    #Left Top Done
-                 [[1,4,2,5],[[0,3,6],[2,1,0],[8,5,2],[6,7,8]],[4,2,5,1],[3,False]],    #Left Bottom Done
-                 ]   
-    elif face==2:              #TESTED SUCCESFUL 17/05
-        fTurnArr=[[[2,0,1,3],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[3,2,0,1],[5,True]],    #Bottom Left Done
-                 [[2,0,1,3],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[0,1,3,2],[5,False]],    #Bottom Right Done
-                 [[2,4,1,5],[[2,5,8],[0,1,2],[5,3,0],[8,7,6]],[5,2,4,1],[3,True]],    #Right Top Done
-                 [[2,4,1,5],[[2,5,8],[0,1,2],[5,3,0],[8,7,6]],[4,1,5,2],[3,False]],    #Right Bottom Done
-                 [[2,4,1,5],[[0,3,6],[6,7,8],[8,5,2],[2,1,0]],[5,2,4,1],[0,True]],    #Left Top Done
-                 [[2,4,1,5],[[0,3,6],[6,7,8],[8,5,2],[2,1,0]],[4,1,5,2],[0,False]]     #Left Bottom Done
-                 ]   
-    elif face==3:              #Tested Succesful
-        fTurnArr=[[[3,2,0,1],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[1,3,2,0],[5,True]],    #Bottom Left Done
-                 [[3,2,0,1],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[2,0,1,3],[5,False]],    #Bottom Right Done
-                 [[3,5,0,4],[[2,5,8],[6,3,0],[6,3,0],[6,3,0]],[5,0,4,3],[1,True]],    #Right Top Done
-                 [[3,5,0,4],[[2,5,8],[6,3,0],[6,3,0],[6,3,0]],[4,3,5,0],[1,False]],    #Right Bottom Done
-                 [[3,5,0,4],[[0,3,6],[8,5,2],[8,5,2],[8,5,2]],[5,0,4,3],[2,True]],    #Left Top Done
-                 [[3,5,0,4],[[0,3,6],[8,5,2],[8,5,2],[8,5,2]],[4,3,5,0],[2,False]],    #Left Bottom Done
-                 ]
-    elif face==4:             #Tested Succesful
-        fTurnArr=[[[4,1,5,2],[[6,7,8],[8,5,2],[2,1,0],[0,3,6]],[2,4,1,5],[0,True]],    #Bottom Left Done
-                 [[4,1,5,2],[[6,7,8],[8,5,2],[2,1,0],[0,3,6]],[1,5,2,4],[0,False]],    #Bottom Right Done
-                 [[4,3,5,0],[[2,5,8],[6,3,0],[2,5,8],[2,5,8]],[0,4,3,5],[2,True]],     #Right Top Done    
-                 [[4,3,5,0],[[2,5,8],[6,3,0],[2,5,8],[2,5,8]],[3,5,0,4],[2,False]],    #Right Bottom Done
-                 [[4,3,5,0],[[0,3,6],[8,5,2],[0,3,6],[0,3,6]],[0,4,3,5],[1,True]],     #Left Top Done    
-                 [[4,3,5,0],[[0,3,6],[8,5,2],[0,3,6],[0,3,6]],[3,5,0,4],[1,False]],    #Left Bottom Done
-                 ]
-    elif face==5:             #Tested Succesful
-        fTurnArr=[[[5,1,4,2],[[6,7,8],[0,3,6],[2,1,0],[8,5,2]],[2,5,1,4],[3,True]],    #Bottom Left Done    
-                 [[5,1,4,2],[[6,7,8],[0,3,6],[2,1,0],[8,5,2]],[1,5,2,5],[3,False]],    #Bottom Right Done    
-                 [[5,0,4,3],[[2,5,8],[2,5,8],[2,5,8],[6,3,0]],[3,5,0,4],[2,True]],     #Right Top Done
-                 [[5,0,4,3],[[2,5,8],[2,5,8],[2,5,8],[6,3,0]],[0,4,3,5],[2,False]],    #Right Bottom Done
-                 [[5,0,4,3],[[0,3,6],[0,3,6],[0,3,6],[8,5,2]],[3,5,0,4],[1,True]],     #Left Top Done
-                 [[5,0,4,3],[[0,3,6],[0,3,6],[0,3,6],[8,5,2]],[0,4,3,5],[1,False]],    #Left Bottom Done
-                 ]
-    reworkedSwap(fTurnArr[turnB][0],fTurnArr[turnB][1],fTurnArr[turnB][2],cubeMatrix)
-    turn(cubeMatrix,fTurnArr[turnB][3][0],fTurnArr[3][1])
+def newTurn(cubematrix,action):
+    newCubeMatrix=cubematrix
+    moveList=[
+              [[1,4,2,5],[[2,5,8],[8,7,6],[6,3,0],[0,1,2]],[4,2,5,1]],    
+              [[1,4,2,5],[[2,5,8],[8,7,6],[6,3,0],[0,1,2]],[5,1,4,2]],
+              [[0,4,3,5],[[0,3,6],[0,3,6],[8,5,2],[0,3,6]],[4,3,5,0]],    
+              [[0,4,3,5],[[0,3,6],[0,3,6],[8,5,2],[0,3,6]],[5,0,4,3]],
+              [[0,4,3,5],[[2,5,8],[2,5,8],[6,3,0],[2,5,8]],[4,3,5,0]],    
+              [[0,4,3,5],[[2,5,8],[2,5,8],[6,3,0],[2,5,8]],[5,0,4,3]],
+              [[1,4,2,5],[[0,3,6],[2,1,0],[8,5,2],[6,7,8]],[5,1,4,2]],
+              [[1,4,2,5],[[0,3,6],[2,1,0],[8,5,2],[6,7,8]],[4,2,5,1]],
+              [[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[2,0,1,3]],
+              [[0,1,3,2],[[6,7,8],[6,7,8],[6,7,8],[6,7,8]],[1,3,2,0]]
+    ]   
+    if action%2==0:
+        TF=True
+    else:
+        TF=False
+    move=moveList[action]
+    newCubeMatrix=reworkedSwap(move[0],move[1],move[2],newCubeMatrix)
+    if math.floor(action/2)==4:
+        newCubeMatrix=turn(newCubeMatrix,5,TF)
+    else:    
+        newCubeMatrix=turn(newCubeMatrix,math.floor(action/2),TF)
+    return newCubeMatrix
 
-def checkBasicPossibility():
-    basicPoss=[0,0,0,0,0,0]
-    for a in cubeMatrix:
-        for b in a:           
-            basicPoss[b-1]+=1
-    for a in basicPoss:
-        if a!=9:
-            print("Basic Check 1 Failed")
+def checkSolved(matr):
+    for index,a in enumerate(matr):
+        zipped=zip(a,solvedCubeMatrix[index])
+        for a in zipped:
+            #print(a)
+            if a[0]==a[1]:
+                continue
+            else:
+                return False
+    return True
 
 def shuffle():
-    for i in range(random.randint(1,99)):
-        turnOF(random.randint(0,3),random.randint(0,5))
-        checkBasicPossibility()
-    print(cubeMatrix)
+    cubeMatrix=resetCube()
+    for i in range(random.randint(5,99)):
+        a=random.randint(0,9)
+        newTurn(cubeMatrix,a)
+    return cubeMatrix
 
-def Eval():
-    print("Moves to Completion: "+str(len(moveList)))
-    print("Move List: "+moveList)
-                
+def checkAlign(state):
+    high=0
+    for a in state:
+        if np.count_nonzero(a == a[0]) == 9:
+            high+=1
+    return high
 
 def testingProgram():
     global cubeMatrix
@@ -171,7 +145,6 @@ def testingProgram():
     MInp=input("What would you Like to do: \n")
     while MInp!="END":
         if MInp=="R":
-            initMatr()
             print("Cube has been reset")
         elif MInp=="Shuff":
             shuffle()
@@ -187,30 +160,8 @@ def testingProgram():
 
 #testingProgram()
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-#Cam Functions
-
-def getColorCode(R,G,B):
-    minimum = 10000
-    for i in range(len(csv)):
-        d = abs(R- int(csv.loc[i,"R"])) + abs(G- int(csv.loc[i,"G"]))+ abs(B- int(csv.loc[i,"B"]))
-        if(d<=minimum):
-            minimum = d
-            cname = csv.loc[i,"color"]
-            cnum = csv.loc[i,"no"]
-            print(cnum)
-        else:
-            print("No work")
-    #print(cname)
-    return cnum
-
-#Function to get the exact RGB value of a section in an image
-def colorCheck(xpos,ypos,img):
-    global r,g,b
-    b,g,r=img[xpos][ypos]
-    #b,g,r=imgList[img][xpos,ypos]
-    b=int(b)
-    g=int(g)
-    r=int(r)
+if __name__ == "__main__":
+    cube = resetCube()
+    #cube = newTurn(cube,0)
+    print(cube)
+    print(checkAlign(cube))

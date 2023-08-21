@@ -127,10 +127,17 @@ def checkSolved(matr):
 
 def shuffle():
     cubeMatrix=resetCube()
-    for i in range(random.randint(1,99)):
+    for i in range(random.randint(5,99)):
         a=random.randint(0,9)
         newTurn(cubeMatrix,a)
     return cubeMatrix
+
+def checkAlign(state):
+    high=0
+    for a in state:
+        if np.count_nonzero(a == a[0]) == 9:
+            high+=1
+    return high
 
 def testingProgram():
     global cubeMatrix
@@ -152,3 +159,9 @@ def testingProgram():
     print("Ending Program")
 
 #testingProgram()
+
+if __name__ == "__main__":
+    cube = resetCube()
+    #cube = newTurn(cube,0)
+    print(cube)
+    print(checkAlign(cube))

@@ -127,7 +127,7 @@ def checkSolved(matr):
 
 def shuffle():
     cubeMatrix=resetCube()
-    for i in range(random.randint(5,99)):
+    for i in range(15):
         a=random.randint(0,9)
         newTurn(cubeMatrix,a)
     return cubeMatrix

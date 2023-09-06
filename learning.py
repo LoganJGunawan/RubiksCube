@@ -8,6 +8,7 @@ import torch.nn.functional as F
 import math
 import torch
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 #Format of experiences to insert into our replaybuffer
 Experience = namedtuple('Experience',['state','action','reward','next_state','done'])
@@ -41,14 +42,7 @@ class Environment():
         self.state = shuffle()
 
     def encode(self):
-        one_hot_encoded = np.empty(self.state.shape + (6,))
-
-        for i in range(self.state.shape[0]):
-            for j in range(self.state.shape[1]):
-                    color_value = self.state[i,j]
-                    one_hot_encoded[i,j] = self.oneHotEncoding[color_value]
-        
-        return torch.tensor(one_hot_encoded)
+        return torch.tensor(self.state)
     
     def checkGoal(self):
         global maxGoal
@@ -71,36 +65,42 @@ class Environment():
         return reward, done
 
 class DQN(nn.Module):
-    def __init__(self,inp,out):
+    def __init__(self,out,embedding_dim):
         super(DQN, self).__init__()
-        
+        self.embedding = nn.Embedding(6*9,embedding_dim)
         self.convolutional_layers = nn.Sequential(
-            nn.Conv2d(in_channels=inp, out_channels=32, kernel_size=3),  # Use padding to maintain size
+            nn.Conv2d(in_channels=9, out_channels=32, kernel_size=3), 
             nn.ReLU(),
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3),
             nn.ReLU(),
         )
 
         self.feature_layers = nn.Sequential(
-            nn.Linear(10, 256),
+            nn.Linear(640, 256),
             nn.ReLU(),
             nn.Linear(256, out),
             nn.ReLU()
         )
 
     def forward(self, x):
-        x=x.float()
-        x = self.convolutional_layers(x)
-        if(x.size(1)==5):
-            x=torch.flatten(x,start_dim=1)
+        x=x.long()
+        embedded = self.embedding(x)
+        if len(embedded.size())==4:
+            embedded = embedded.view(x.size(0),9,6,-1)
+            x = self.convolutional_layers(embedded)
+            x = x.view(x.size(0),10,640)
+            x = self.feature_layers(x)
+            x = x.transpose(1,2).sum(dim=2)
         else:
-            x=torch.flatten(x,start_dim=2)
-        x = self.feature_layers(x)
-        print(x)
+            embedded = embedded.view(x.size(0),9,6,-1)
+            x = self.convolutional_layers(embedded)
+            x = x.view(x.size(0),-1)
+            x = self.feature_layers(x)
+            x = x.t().sum()
         return x
 
 def randomTurn():
-    global cube, totalReward
+    global cube, totalReward, done
     cubeState = cube.encode().to('cuda')
     action = random.randint(0,9)
     reward,done = cube.turn(action)
@@ -139,43 +139,36 @@ def update_policy_network(policy_net, target_net, optimizer, batch, gamma):
 
     # Compute Q-values for current states using the policy network
     q_values = policy_net(states)
-    print(actions.size())
+    q_values = q_values.gather(1,actions.unsqueeze(1)).squeeze()
 
     # Compute target Q-values using the target network
     with torch.no_grad():
         next_q_values = target_net(next_states).max(1)[0]
-        next_q_values = next_q_values.squeeze()
-        rewards=rewards.unsqueeze(1)
-        print(next_q_values)
-        print("Shapes before multiplication:")
-        print("rewards shape:", rewards.shape)
-        print("next_q_values shape:", next_q_values.shape)
         target_q_values = rewards + gamma * next_q_values * (1 - dones)
 
-    # Calculate the loss and perform gradient descent
-    loss = nn.functional.smooth_l1_loss(q_values, target_q_values.unsqueeze(1))
-    print(f"\n{loss.item()}")
+    loss = nn.functional.mse_loss(q_values,target_q_values)
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
+    losses.append(loss.item())
 
 if __name__ == "__main__":
     #Training Phase
     cube = Environment()
     replay_buffer = ReplayBuffer(capacity=2000,inputSize=(6,9))
-    batchsize = 256
+    batchsize = 128
     gamma = 0.99
-    epsilon=0.15
+    epsilon=0.2
     TAU = 0.005
-    LR = 1e-4
+    LR = 1e-8
     episodeLength=150
-    numEps=1000
-    target_network_update_interval = 200
+    numEps=5000
+    target_network_update_interval = 512
     numFinish = 0
     maxReward=-500
 
-    policy_net = DQN(6,10).to('cuda')
-    target_net = DQN(6,10).to('cuda')
+    policy_net = DQN(10,54).to('cuda')
+    target_net = DQN(10,54).to('cuda')
     #policy_net.load_state_dict(torch.load('model.pth'))
     #target_net.load_state_dict(torch.load('target.pth'))
     target_net.load_state_dict(policy_net.state_dict())
@@ -183,35 +176,43 @@ if __name__ == "__main__":
 
     optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
     episodeDuration = []
-    pbar = tqdm(total=numEps, unit="episode", ncols=125)
+    losses = []
+    for z in range(1):
+        numFinish = 0
+        pbar = tqdm(total=numEps, unit="episode", ncols=125)
+        maxReward = -500
+        for episode in range(numEps):
+            stepsDone=0
+            totalReward=0
+            cube.shuffle()
+            done = False
+            maxGoal = 0
 
-    for episode in range(numEps):
-        stepsDone=0
-        totalReward=0
-        cube.shuffle()
-        done = False
-        maxGoal = 0
+            for step in range(episodeLength):
+                ep=makeAMove()
+                replay_buffer.addExperience(ep)
 
-        for step in range(episodeLength):
-            ep=makeAMove()
-            replay_buffer.addExperience(ep)
+                if len(replay_buffer)>=batchsize:
+                    batch = replay_buffer.sampleBatch(batchsize)
+                    update_policy_network(policy_net,target_net,optimizer,batch,gamma)
+                
+                if done:
+                    numFinish+=1
+                    break
 
-            if len(replay_buffer)>=batchsize:
-                batch = replay_buffer.sampleBatch(batchsize)
-                update_policy_network(policy_net,target_net,optimizer,batch,gamma)
-            
-            if done:
-                numFinish+=1
-                break
-
-            if episode % target_network_update_interval == 0:
-                target_net.load_state_dict(policy_net.state_dict())
-                target_net.eval()
-        if totalReward > maxReward:
-            maxReward = totalReward
-        pbar.set_description(f"Episode: {episode+1}/{numEps} | Finish: {numFinish} | Best Run: {maxReward}")
-        pbar.update()
-    
-    torch.save(policy_net.state_dict(), "model.pth")
-    torch.save(target_net.state_dict(),"target.pth")
-    print("Finished training and saved model")
+                if episode % target_network_update_interval == 0:
+                    target_net.load_state_dict(policy_net.state_dict())
+                    target_net.eval()
+            if totalReward > maxReward:
+                maxReward = totalReward
+            pbar.set_description(f"Episode: {episode+1}/{numEps} | Finish: {numFinish} | Best Run: {maxReward}")
+            pbar.update()
+        
+        torch.save(policy_net.state_dict(), "model.pth")
+        torch.save(target_net.state_dict(),"target.pth")
+        print("Finished training and saved model")
+        plt.plot(losses)
+        plt.xlabel('Iteration')
+        plt.ylabel('Loss')
+        plt.title('Training Loss')
+        plt.show()
